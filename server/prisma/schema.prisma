@@ -1,0 +1,196 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String    @id @default(uuid())
+  name        String
+  email       String    @unique
+  password    String
+  role        String
+  isActive    Boolean   @default(true)
+  department  String?
+  avatarUrl   String?
+  city        String?
+  state       String?
+  country     String?
+  phone       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  createdTickets    Ticket[]    @relation("CustomerTickets")
+  assignedTickets   Ticket[]    @relation("AssignedAgent")
+  comments          Comment[]
+  attachments       Attachment[] @relation("Uploader")
+  ticketEvents      TicketEvent[]
+  notifications     Notification[]
+  activityLogs      UserActivityLog[]
+  passwordResets    PasswordResetToken[]
+
+  @@map("users")
+}
+
+model Ticket {
+  id              String          @id @default(uuid())
+  subject         String
+  description     String
+  priority        String  @default("MEDIUM")
+  status          String    @default("OPEN")
+  assignedAgentId String?
+  customerId      String
+  slaBreached     Boolean         @default(false)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // Relations
+  customer      User         @relation("CustomerTickets", fields: [customerId], references: [id], onDelete: Cascade)
+  assignedAgent User?        @relation("AssignedAgent", fields: [assignedAgentId], references: [id], onDelete: SetNull)
+  comments      Comment[]
+  attachments   Attachment[]
+  events        TicketEvent[]
+  notifications Notification[]
+
+  @@map("tickets")
+}
+
+model TicketEvent {
+  id        String          @id @default(uuid())
+  type      String
+  meta      String?
+  ticketId  String
+  actorId   String
+  createdAt DateTime        @default(now())
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  actor  User   @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId, createdAt])
+  @@map("ticket_events")
+}
+
+model Comment {
+  id        String      @id @default(uuid())
+  content   String
+  type      String @default("PUBLIC")
+  ticketId  String
+  authorId  String
+  createdAt DateTime    @default(now())
+
+  // Relations
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  author User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
+}
+
+model Attachment {
+  id        String   @id @default(uuid())
+  filePath  String
+  fileName  String
+  ticketId  String
+  uploadedBy String
+  createdAt DateTime @default(now())
+
+  // Relations
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  uploader User @relation("Uploader", fields: [uploadedBy], references: [id], onDelete: Cascade)
+
+  @@map("attachments")
+}
+
+model SLA {
+  id                   String          @id @default(uuid())
+  priority             String  @unique
+  responseTimeMinutes  Int
+  resolutionTimeMinutes Int
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  @@map("slas")
+}
+
+model KBArticle {
+  id         String   @id @default(uuid())
+  title      String
+  content    String
+  category   String
+  visibility String   @default("PUBLIC")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("kb_articles")
+}
+
+model Notification {
+  id        String            @id @default(uuid())
+  type      String
+  title     String
+  message   String
+  userId    String
+  ticketId  String?
+  status    String @default("UNREAD")
+  createdAt DateTime          @default(now())
+  readAt    DateTime?
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ticket Ticket? @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status, createdAt])
+  @@map("notifications")
+}
+
+model TicketTemplate {
+  id          String   @id @default(uuid())
+  name        String
+  subject     String
+  description String
+  priority    String @default("MEDIUM")
+  category    String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("ticket_templates")
+}
+
+model PasswordResetToken {
+  id         String   @id @default(uuid())
+  userId     String
+  tokenHash  String
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@index([tokenHash])
+  @@map("password_reset_tokens")
+}
+
+model UserActivityLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  action    String
+  entity    String?
+  entityId  String?
+  ip        String?
+  userAgent String?
+  meta      String?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+  @@map("user_activity_logs")
+}

@@ -1,0 +1,130 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-200;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/80 dark:bg-slate-800/60 backdrop-blur-md border border-slate-200 dark:border-slate-700/50 rounded-2xl shadow-xl transition-colors duration-200;
+  }
+
+  .btn-primary {
+    @apply text-white px-5 py-2.5 rounded-xl transition-all font-semibold transform hover:-translate-y-0.5;
+    background-color: #2563eb;
+    /* brand-600 */
+    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2);
+  }
+
+  .btn-primary:hover {
+    background-color: #3b82f6;
+    /* brand-500 */
+    box-shadow: 0 20px 25px -5px rgba(37, 99, 235, 0.4);
+  }
+
+  .btn-secondary {
+    @apply bg-slate-100 dark:bg-slate-900/50 text-slate-700 dark:text-slate-300 px-5 py-2.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 transition-all font-medium border border-slate-200 dark:border-slate-700/50 backdrop-blur-sm;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 transition-all duration-300;
+
+    /* Improve select dropdown options visibility */
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.25rem;
+  }
+
+  .input-field option {
+    @apply bg-white dark:bg-slate-900 text-slate-900 dark:text-white py-2;
+  }
+
+  .input-field:focus {
+    border-color: #3b82f6;
+    /* brand-500 */
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+  }
+}
+
+@layer utilities {
+
+  /* Smooth animations */
+  * {
+    @apply transition-colors duration-200;
+  }
+
+  /* Custom tada animation */
+  @keyframes tada {
+    0% {
+      transform: scale(1);
+    }
+
+    10% {
+      transform: scale(0.9) rotate(-3deg);
+    }
+
+    20% {
+      transform: scale(0.9) rotate(-3deg);
+    }
+
+    30% {
+      transform: scale(1.1) rotate(3deg);
+    }
+
+    40% {
+      transform: scale(1.1) rotate(-3deg);
+    }
+
+    50% {
+      transform: scale(1.1) rotate(3deg);
+    }
+
+    60% {
+      transform: scale(1.1) rotate(-3deg);
+    }
+
+    70% {
+      transform: scale(1.1) rotate(3deg);
+    }
+
+    80% {
+      transform: scale(1.1) rotate(-3deg);
+    }
+
+    90% {
+      transform: scale(1.1) rotate(3deg);
+    }
+
+    100% {
+      transform: scale(1) rotate(0);
+    }
+  }
+
+  .animate-tada {
+    animation: tada 1s ease-in-out infinite;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-700 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-600;
+  }
+}
