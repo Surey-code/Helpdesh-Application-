@@ -16,6 +16,7 @@ import reportRoutes from './routes/reports.js';
 import slaRoutes from './routes/sla.js';
 import notificationRoutes from './routes/notifications.js';
 import templateRoutes from './routes/templates.js';
+import settingsRoutes from './routes/settings.js';
 
 dotenv.config();
 
@@ -64,6 +65,7 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/sla', slaRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/templates', templateRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

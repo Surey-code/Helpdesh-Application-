@@ -93,13 +93,13 @@ function Dashboard() {
         animate={{ opacity: 1, y: 0 }}
         className="mb-10"
       >
-        <h1 className="text-6xl font-black tracking-tighter text-slate-900 dark:text-white mb-2 uppercase italic">Quantum Gateway</h1>
+        <h1 className="text-6xl font-black tracking-tighter text-slate-900 dark:text-white mb-2 uppercase italic">Dashboard</h1>
         <p className="text-brand-500 font-mono text-sm tracking-widest uppercase opacity-80">Welcome back, {user?.name}!</p>
       </motion.div>
 
       {isManager && stats && (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
             <StatsCard
               title="Total Tickets"
               value={stats.totalTickets || 0}
@@ -127,6 +127,13 @@ function Dashboard() {
               icon={AlertCircle}
               color="red"
               delay={0.4}
+            />
+            <StatsCard
+              title="Avg Resolution"
+              value={stats.averageResolutionTime ? `${Math.round(stats.averageResolutionTime)}m` : '0m'}
+              icon={CheckCircle}
+              color="green"
+              delay={0.5}
             />
           </div>
 
@@ -216,7 +223,7 @@ function Dashboard() {
                 )}
               </div>
               <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={agentPerformance.filter(a => a.ticketCount > 0)}>
+                <AreaChart data={(agentPerformance || []).filter(a => a.ticketCount > 0)}>
                   <defs>
                     <linearGradient id="colorAgent" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8} />
@@ -243,6 +250,46 @@ function Dashboard() {
               </ResponsiveContainer>
             </motion.div>
           </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+            className="glass-card p-6"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Unassigned Tickets</h2>
+              <Link to="/tickets" className="text-brand-500 hover:text-brand-400 text-xs font-mono uppercase tracking-widest">
+                View All →
+              </Link>
+            </div>
+            {stats.recentTickets && stats.recentTickets.length > 0 ? (
+              <div className="space-y-3">
+                {stats.recentTickets.map((ticket) => (
+                  <Link
+                    key={ticket.id}
+                    to={`/tickets/${ticket.id}`}
+                    className="block p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-brand-500 dark:hover:border-brand-500 transition-all"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-slate-900 dark:text-white">{ticket.subject}</span>
+                        <span className="text-xs text-slate-500 dark:text-slate-400">By {ticket.customer?.name}</span>
+                      </div>
+                      <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${ticket.priority === 'URGENT' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                        ticket.priority === 'HIGH' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' :
+                          'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                        }`}>
+                        {ticket.priority}
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className="text-slate-500 text-center py-8">No unassigned tickets found.</p>
+            )}
+          </motion.div>
         </>
       )}
 
@@ -322,7 +369,7 @@ function Dashboard() {
               transition={{ delay: 0.6 }}
               className="glass-card p-6"
             >
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Tickets by Priority</h2>
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">My Priority Distribution</h2>
               <ResponsiveContainer width="100%" height={300}>
                 <AreaChart data={Object.entries(stats.priorityCounts || {}).map(([priority, count]) => ({ priority, count }))}>
                   <defs>
@@ -351,6 +398,44 @@ function Dashboard() {
               </ResponsiveContainer>
             </motion.div>
           </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            className="glass-card p-6"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">My Recent Tickets</h2>
+              <Link to="/tickets" className="text-brand-500 hover:text-brand-400 text-xs font-mono uppercase tracking-widest">
+                View All →
+              </Link>
+            </div>
+            {stats.recentTickets && stats.recentTickets.length > 0 ? (
+              <div className="space-y-3">
+                {stats.recentTickets.map((ticket) => (
+                  <Link
+                    key={ticket.id}
+                    to={`/tickets/${ticket.id}`}
+                    className="block p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-brand-500 dark:hover:border-brand-500 transition-all"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-semibold text-slate-900 dark:text-white">{ticket.subject}</span>
+                      <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${ticket.status === 'OPEN' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                        ticket.status === 'IN_PROGRESS' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                          ticket.status === 'RESOLVED' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                            'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-400'
+                        }`}>
+                        {ticket.status}
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className="text-slate-500 text-center py-8">No assigned tickets found.</p>
+            )}
+          </motion.div>
         </>
       )}
 

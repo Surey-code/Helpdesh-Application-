@@ -13,6 +13,7 @@ import {
   X,
   Plus,
   Home,
+  Settings,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';

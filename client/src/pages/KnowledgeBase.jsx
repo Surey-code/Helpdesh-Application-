@@ -61,7 +61,7 @@ function KnowledgeBase() {
         animate={{ opacity: 1, y: 0 }}
         className="mb-10"
       >
-        <h1 className="text-6xl font-black tracking-tighter text-slate-900 dark:text-white mb-2 uppercase italic">Neural Archive</h1>
+        <h1 className="text-6xl font-black tracking-tighter text-slate-900 dark:text-white mb-2 uppercase italic">Knowledge Base</h1>
         <p className="text-brand-500 font-mono text-sm tracking-widest uppercase opacity-80">Browse helpful articles and guides</p>
       </motion.div>
 

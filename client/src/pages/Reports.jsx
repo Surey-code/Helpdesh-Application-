@@ -37,6 +37,8 @@ function Reports() {
       ['Open Tickets', stats.statusCounts?.OPEN || 0],
       ['In Progress', stats.statusCounts?.IN_PROGRESS || 0],
       ['SLA Breached', stats.slaBreachedCount],
+      ['Avg Response Time (min)', stats.averageResponseTime ? Math.round(stats.averageResponseTime) : 0],
+      ['Avg Resolution Time (min)', stats.averageResolutionTime ? Math.round(stats.averageResolutionTime) : 0],
       [''],
       ['Agent', 'Tickets Handled'],
       ...stats.agentPerformance.map(a => [a.name, a.ticketCount]),
@@ -97,7 +99,7 @@ function Reports() {
         className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6"
       >
         <div>
-          <h1 className="text-6xl font-black tracking-tighter text-slate-800 dark:text-white mb-2 uppercase italic">Synapse Matrix</h1>
+          <h1 className="text-6xl font-black tracking-tighter text-slate-800 dark:text-white mb-2 uppercase italic">Reports & Analytics</h1>
           <p className="text-brand-500 font-mono text-sm tracking-widest uppercase opacity-80">Comprehensive insights into ticket management</p>
         </div>
 
@@ -126,7 +128,7 @@ function Reports() {
         </div>
       </motion.div>
 
-      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 transition-opacity ${loading ? 'opacity-50' : 'opacity-100'}`}>
+      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8 transition-opacity ${loading ? 'opacity-50' : 'opacity-100'}`}>
         <StatsCard
           title="Total Tickets"
           value={stats.totalTickets || 0}
@@ -150,6 +152,18 @@ function Reports() {
           value={stats.slaBreachedCount || 0}
           icon={AlertCircle}
           color="red"
+        />
+        <StatsCard
+          title="Avg Response"
+          value={stats.averageResponseTime ? `${Math.round(stats.averageResponseTime)}m` : '0m'}
+          icon={Clock}
+          color="brand-light"
+        />
+        <StatsCard
+          title="Avg Resolution"
+          value={stats.averageResolutionTime ? `${Math.round(stats.averageResolutionTime)}m` : '0m'}
+          icon={CheckCircle}
+          color="brand"
         />
       </div>
 

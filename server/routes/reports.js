@@ -85,12 +85,17 @@ router.get('/dashboard', authenticate, authorize('SUPER_ADMIN', 'ADMIN', 'MANAGE
       id: agent.id,
       name: agent.name,
       isActive: agent.isActive,
-      ticketCount: agent.assignedTickets.length
+      ticketCount: agent.assignedTickets?.length || 0
     }));
 
     // Get recent tickets within timeframe
+    let recentTicketsWhere = { ...where };
+    if (['SUPER_ADMIN', 'ADMIN', 'MANAGER'].includes(user.role)) {
+      recentTicketsWhere.assignedAgentId = null;
+    }
+
     const recentTickets = await prisma.ticket.findMany({
-      where,
+      where: recentTicketsWhere,
       take: 10,
       orderBy: { createdAt: 'desc' },
       include: {
@@ -109,6 +114,41 @@ router.get('/dashboard', authenticate, authorize('SUPER_ADMIN', 'ADMIN', 'MANAGE
         },
       },
     });
+
+    // Get average response time and resolution time
+    const ticketsWithMetrics = await prisma.ticket.findMany({
+      where: {
+        ...where,
+        OR: [
+          { firstRespondedAt: { not: null } },
+          { resolvedAt: { not: null } }
+        ]
+      },
+      select: {
+        createdAt: true,
+        firstRespondedAt: true,
+        resolvedAt: true
+      }
+    });
+
+    let totalResponseTime = 0;
+    let respondedCount = 0;
+    let totalResolutionTime = 0;
+    let resolvedCount = 0;
+
+    ticketsWithMetrics.forEach(ticket => {
+      if (ticket.firstRespondedAt) {
+        totalResponseTime += (ticket.firstRespondedAt - ticket.createdAt);
+        respondedCount++;
+      }
+      if (ticket.resolvedAt) {
+        totalResolutionTime += (ticket.resolvedAt - ticket.createdAt);
+        resolvedCount++;
+      }
+    });
+
+    const averageResponseTime = respondedCount > 0 ? (totalResponseTime / respondedCount / (1000 * 60)) : 0; // In minutes
+    const averageResolutionTime = resolvedCount > 0 ? (totalResolutionTime / resolvedCount / (1000 * 60)) : 0; // In minutes
 
     // Get tickets by date for the trend chart
     const ticketsByDate = await prisma.ticket.findMany({
@@ -133,6 +173,8 @@ router.get('/dashboard', authenticate, authorize('SUPER_ADMIN', 'ADMIN', 'MANAGE
       recentTickets,
       ticketsByDate,
       agentPerformance: formattedPerformance,
+      averageResponseTime,
+      averageResolutionTime,
     });
   } catch (error) {
     console.error('Dashboard stats error:', error);

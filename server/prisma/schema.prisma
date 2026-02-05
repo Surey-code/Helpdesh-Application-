@@ -48,6 +48,8 @@ model Ticket {
   assignedAgentId String?
   customerId      String
   slaBreached     Boolean         @default(false)
+  firstRespondedAt DateTime?
+  resolvedAt      DateTime?
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
@@ -193,4 +195,25 @@ model UserActivityLog {
   @@index([userId, createdAt])
   @@index([action, createdAt])
   @@map("user_activity_logs")
+}
+
+model SystemSettings {
+  id                  String   @id @default(uuid())
+  smtpHost            String?
+  smtpPort            Int?
+  smtpUser            String?
+  smtpPass            String?  // In a real app, this should be encrypted
+  smtpSecure          Boolean  @default(false)
+  emailFrom           String?
+  
+  // Toggles
+  enableEmailAlerts   Boolean  @default(false)
+  enableInAppAlerts   Boolean  @default(true)
+  enableTicketAssign  Boolean  @default(true)
+  enableSlaBreach     Boolean  @default(true)
+  
+  updatedAt           DateTime @updatedAt
+  updatedBy           String? // User ID of the admin who updated
+
+  @@map("system_settings")
 }

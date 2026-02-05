@@ -122,7 +122,7 @@ export default function Profile() {
     <div className="p-8 max-w-5xl mx-auto">
       <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} className="mb-8 flex justify-between items-center">
         <div>
-          <h1 className="text-5xl font-extrabold tracking-tighter text-slate-800 dark:text-white mb-2 uppercase italic">Biometric Identity</h1>
+          <h1 className="text-5xl font-extrabold tracking-tighter text-slate-800 dark:text-white mb-2 uppercase italic">Profile</h1>
           <p className="text-brand-500 font-mono text-sm tracking-widest uppercase opacity-80">Personalize your space and settings</p>
         </div>
         <button

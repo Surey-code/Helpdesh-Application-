@@ -103,7 +103,7 @@ function Users() {
       >
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-6xl font-black tracking-tighter text-slate-900 dark:text-white mb-2 uppercase italic">Entity Protocol</h1>
+            <h1 className="text-6xl font-black tracking-tighter text-slate-900 dark:text-white mb-2 uppercase italic">User Management</h1>
             <p className="text-brand-500 font-mono text-sm tracking-widest uppercase opacity-80">Manage system users and permissions</p>
           </div>
           <button

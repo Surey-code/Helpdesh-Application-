@@ -160,6 +160,12 @@ router.get('/:id', authenticate, async (req, res) => {
       return res.status(404).json({ error: 'Ticket not found' });
     }
 
+    // Get SLA configuration for this priority
+    const sla = await prisma.sLA.findUnique({
+      where: { priority: ticket.priority }
+    });
+    ticket.sla = sla;
+
     // Check access permissions
     if (user.role === 'CUSTOMER' && ticket.customerId !== user.id) {
       return res.status(403).json({ error: 'Access denied' });
@@ -285,6 +291,12 @@ router.put('/:id', authenticate, authorize('SUPER_ADMIN', 'ADMIN', 'AGENT', 'MAN
         ...(priority && { priority }),
         ...(status && { status }),
         ...(assignedAgentId !== undefined && { assignedAgentId }),
+        // Set resolvedAt when status is RESOLVED or CLOSED
+        ...(status && ['RESOLVED', 'CLOSED'].includes(status) && !ticket.resolvedAt && { resolvedAt: new Date() }),
+        // Clear resolvedAt if status is changed back to something else
+        ...(status && !['RESOLVED', 'CLOSED'].includes(status) && { resolvedAt: null }),
+        // Set firstRespondedAt on first assignment if not already set
+        ...(assignedAgentId && !ticket.firstRespondedAt && { firstRespondedAt: new Date() }),
       },
       include: {
         customer: {
@@ -441,6 +453,14 @@ router.post('/:id/comments', authenticate, async (req, res) => {
         },
       },
     });
+
+    // Set firstRespondedAt if this is a public comment by an agent/admin and it's not already set
+    if (commentType === 'PUBLIC' && ['SUPER_ADMIN', 'ADMIN', 'AGENT', 'MANAGER'].includes(user.role) && !ticket.firstRespondedAt) {
+      await prisma.ticket.update({
+        where: { id },
+        data: { firstRespondedAt: new Date() },
+      });
+    }
 
     // Log event
     await prisma.ticketEvent.create({

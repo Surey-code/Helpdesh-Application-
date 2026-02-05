@@ -24,6 +24,51 @@ const priorityColors = {
   URGENT: 'text-red-600 dark:text-red-400',
 };
 
+function CountdownTimer({ targetDate, isBreached, isResolved }) {
+  const [timeLeft, setTimeLeft] = useState('');
+  const [isCritical, setIsCritical] = useState(false);
+
+  useEffect(() => {
+    if (isResolved && !isBreached) return;
+
+    const calculateTimeLeft = () => {
+      const now = new Date();
+      const target = new Date(targetDate);
+      const difference = target - now;
+
+      if (difference <= 0 || isBreached) {
+        setTimeLeft('SLA Breached');
+        setIsCritical(true);
+        return;
+      }
+
+      const hours = Math.floor(difference / (1000 * 60 * 60));
+      const minutes = Math.floor((difference / 1000 / 60) % 60);
+      const seconds = Math.floor((difference / 1000) % 60);
+
+      setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
+      if (hours < 1) setIsCritical(true);
+    };
+
+    const timer = setInterval(calculateTimeLeft, 1000);
+    calculateTimeLeft();
+
+    return () => clearInterval(timer);
+  }, [targetDate, isBreached, isResolved]);
+
+  if (isResolved && !isBreached) return null;
+
+  return (
+    <div className={cn(
+      "flex items-center gap-2 px-3 py-1 rounded-lg font-mono text-sm shadow-sm transition-all",
+      isCritical ? "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400 border border-red-100 dark:border-red-900/50" : "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/50"
+    )}>
+      <Clock size={16} className={cn(isCritical && "animate-pulse")} />
+      <span>{timeLeft}</span>
+    </div>
+  );
+}
+
 function TicketDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -161,11 +206,12 @@ function TicketDetails() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              {ticket.slaBreached && (
-                <div className="flex items-center gap-2 px-3 py-1 bg-red-50 text-red-700 rounded-lg">
-                  <AlertCircle size={16} />
-                  <span className="text-sm font-medium">SLA Breached</span>
-                </div>
+              {ticket.sla && (
+                <CountdownTimer
+                  targetDate={new Date(new Date(ticket.createdAt).getTime() + ticket.sla.resolutionTimeMinutes * 60000)}
+                  isBreached={ticket.slaBreached}
+                  isResolved={ticket.status === 'RESOLVED' || ticket.status === 'CLOSED'}
+                />
               )}
               <span
                 className={cn(

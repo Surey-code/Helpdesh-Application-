@@ -62,7 +62,7 @@ function Tickets() {
       >
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-6xl font-black tracking-tighter text-slate-900 dark:text-white mb-2 uppercase italic">Event Horizon</h1>
+            <h1 className="text-6xl font-black tracking-tighter text-slate-900 dark:text-white mb-2 uppercase italic">Ticket Management</h1>
             <p className="text-brand-500 font-mono text-sm tracking-widest uppercase opacity-80">Manage and track all support tickets</p>
           </div>
           {user?.role === 'CUSTOMER' && (
